@@ -29,6 +29,7 @@
 - **통신 프로토콜은 제조사 “통신 기능편”의 프레임 구조를 따른다.**
     - Header(0xAA), Length, SyncNo, Reserved(0x00), FrameType, Data
     - 응답에는 통신상태 1byte가 포함되며, `0x00`이 아닐 경우 예외 처리한다.
+    - 응답 SyncNo가 요청 SyncNo와 일치하는지 검증한다.
 - **기능 구현**:
     - `get_input`: 입력 상태 마스크를 파싱하여 채널별 `dict[int,bool]`로 반환
     - `get_output`: 출력 상태 마스크를 파싱하여 0\~7 채널 dict로 반환하고, 필요 시 출력 단계에서 8\~15로 매핑해 표시
@@ -51,7 +52,7 @@
 ### 5) 배포(Deploy)
 
 - **실행/배포 형태:**
-    - 클라이언트 모듈(예: fastech_dio.py) + 테스트 파일(예: test_fastech_dio.py) 형태로 구성한다.
+    - 클라이언트 모듈(ablelabs_robot_control_test.py) + 테스트 파일(test_fastech_dio.py) 형태로 구성한다.
 - **설정 분리:**
     - IP/Port/Timeout/Retry 및 모델 파라미터는 DioConfig로 분리하여 운영 환경에서 손쉽게 변경 가능하다.
 
