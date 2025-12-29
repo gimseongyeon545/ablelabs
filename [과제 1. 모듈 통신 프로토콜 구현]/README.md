@@ -43,6 +43,8 @@
 
 - **단위 테스트(pytest, 장비 없이 가능):**
   - `test_fastech_dio.py`에서 _build_frame, _parse_response(Header/Length/FrameType/SyncNo 검증), 출력 bit-mask 매핑 로직을 pytest로 검증한다.
+  - 실행 결과
+    > <img width="1056" height="88" alt="Image" src="https://github.com/user-attachments/assets/ef3b7e06-8e42-4bc1-960f-401517d3b49e" />
 
 </br>
 
