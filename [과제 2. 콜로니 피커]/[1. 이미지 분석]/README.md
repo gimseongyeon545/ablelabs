@@ -1,5 +1,5 @@
 # 📍[1. 이미지 분석]
-[첨부 파일] colony.py / colony_info.csv / colony_result.png
+[첨부 파일] `colony.py` / `colony_info.csv` / `colony_result.png`
 
 ----
 
@@ -17,9 +17,8 @@
     - 직경(크기)
     - 가장 밀집한 위치(보라선)
 - 결과물:
-    - 콜로니 추출 이미지
-    - 96개 콜로니의 형상 정보(CSV)
-    - 구현 과정 설명
+    - 콜로니 추출 이미지 (`colony_result.png`)
+    - 96개 콜로니의 형상 정보(`colony_info.csv`)
 
 - 본 과제에서는 **정확한 96개 결과 생성과 안정적인 파이프라인**을 목표로 구현하였다.
     
@@ -34,37 +33,36 @@
 ### 3. 처리 파이프라인 상세
     
 #### 3.1 웰 분할 (Grid)
-    - 전체 이미지를 12×8 uniform grid로 분할
-    - 촬영 오차를 보정하기 위해 `GRID_SHIFT_X`, `GRID_SHIFT_Y` 적용
-    - 각 셀은 하나의 웰 ROI로 처리
-    - `grid_debug.png`를 생성하여 사람이 직접 분할 상태를 확인 가능하도록 함
-    
-    - **이유**
-      - Hough 기반 원 검출을 사용할 경우 파라미터 민감도로 인해 웰 중심이 흔들리는 문제가 있었고, 이는 이후 단계 전체를 불안정하게 만들었다.
-      - 본 과제에서는 웰 구조가 명확하므로 **결정적인 grid 분할 방식이 더 안정적**이라 판단하였다.
+- 전체 이미지를 12×8 uniform grid로 분할
+- 촬영 오차를 보정하기 위해 `GRID_SHIFT_X`, `GRID_SHIFT_Y` 적용
+- 각 셀은 하나의 웰 ROI로 처리
+- `grid_debug.png`를 생성하여 사람이 직접 분할 상태를 확인 가능하도록 함
+- 이유
+  - Hough 기반 원 검출을 사용할 경우 파라미터 민감도로 인해 웰 중심이 흔들리는 문제가 있었고, 이는 이후 단계 전체를 불안정하게 만들었다.
+  - 본 과제에서는 웰 구조가 명확하므로 **결정적인 grid 분할 방식이 더 안정적**이라 판단하였다.
 
 
 #### 3.2 웰 마스크 및 내부 경계(림) 제거
-    - 각 웰 ROI에서 원형 `well_mask` 생성
-    - `erode` 연산으로 내부 영역(`inner_mask`) 정의
-    - `ring = well_mask − inner_mask`로 내부 경계(노란 링) 분리
-    - 이후 모든 세그먼트 과정에서 ring 영역은 **강제로 제외**
-    - 이를 통해 과제 요구사항인 *“내부 경계 제외”*를 명확히 만족시켰다.
+- 각 웰 ROI에서 원형 `well_mask` 생성
+- `erode` 연산으로 내부 영역(`inner_mask`) 정의
+- `ring = well_mask − inner_mask`로 내부 경계(노란 링) 분리
+- 이후 모든 세그먼트 과정에서 ring 영역은 **강제로 제외**
+- 이를 통해 과제 요구사항인 *“내부 경계 제외”*를 명확히 만족시켰다.
 
 #### 3.3 조명 보정 (Illumination Flatten)
-    - 웰 내부 조명 편차로 인해 단순 threshold는 불안정
-    - 큰 sigma의 Gaussian blur로 배경을 근사한 뒤 정규화:
-    - `norm = image / background`
-    - 콜로니와 배경의 대비를 안정적으로 확보
+- 웰 내부 조명 편차로 인해 단순 threshold는 불안정
+- 큰 sigma의 Gaussian blur로 배경을 근사한 뒤 정규화:
+- `norm = image / background`
+- 콜로니와 배경의 대비를 안정적으로 확보
 
 #### 3.4 콜로니 Blob 분할
-    1. 내부 영역(inner_mask)에서 밝기 분포 추출
-    2. 대비(sigma)에 따라 adaptive percentile threshold 선택
-    3. morphological open/close로 노이즈 제거
-    4. connected components로 후보 blob 생성
-    5. **seed 위치와의 거리 + 면적 기반 점수**로 최적 blob 선택
-    
-    이 방식은 콜로니가 약하거나 부분적으로 끊어진 경우에도 비교적 안정적으로 동작했다.
+1. 내부 영역(inner_mask)에서 밝기 분포 추출
+2. 대비(sigma)에 따라 adaptive percentile threshold 선택
+3. morphological open/close로 노이즈 제거
+4. connected components로 후보 blob 생성
+5. **seed 위치와의 거리 + 면적 기반 점수**로 최적 blob 선택
+
+이 방식은 콜로니가 약하거나 부분적으로 끊어진 경우에도 비교적 안정적으로 동작했다.
 
 ---
 
