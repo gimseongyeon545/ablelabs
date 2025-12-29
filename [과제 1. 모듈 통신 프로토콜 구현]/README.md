@@ -38,29 +38,34 @@
 
 ### 4) 테스트(Test)
 
-- **통합 테스트(Integration test):**
-    - 제공된 시나리오(출력 순차 ON → 순차 OFF → 입력 조회)를 실행하여 로그로 검증한다.
-- **추가 테스트 전략(장비 부재/자동화 대비):**
-    - Mock TCP 서버를 사용해 매뉴얼 형식 응답을 주입하고, 프레임 생성/파싱 및 재시도 동작을 검증한다.
-    - 단위 테스트: `_build_frame`, `_parse_response`, bit-mask 계산 로직을 pytest로 검증한다.
+- **수동 시나리오 테스트(장비 연동 환경):**
+  - main() 예제 시나리오(출력 순차 ON → 순차 OFF → 입력 조회)를 실행하여 동작을 확인한다. (실장비/네트워크 환경 필요)
+
+- **단위 테스트(pytest, 장비 없이 가능):**
+  - test_fastech_dio.py에서 _build_frame, _parse_response(Header/Length/FrameType/SyncNo 검증), 출력 bit-mask 매핑 로직을 pytest로 검증한다.
 
 </br>
 
 ### 5) 배포(Deploy)
 
 - **실행/배포 형태:**
-    - 단일 Python 파일 또는 모듈(`fastech_dio.py`)로 패키징 가능
+    - 클라이언트 모듈(예: fastech_dio.py) + 테스트 파일(예: test_fastech_dio.py) 형태로 구성한다.
 - **설정 분리:**
-    - IP/Port/Timeout/Retry 및 모델 파라미터는 `DioConfig`로 분리하여 운영 환경에서 손쉽게 변경 가능
+    - IP/Port/Timeout/Retry 및 모델 파라미터는 DioConfig로 분리하여 운영 환경에서 손쉽게 변경 가능하다.
 
 </br>
 
 ### 6) 유지보수(Maintain)
 
 - **에러 분류:**
-    - Connection 레벨 오류(`DioConnectionError`)와 Protocol/Device 응답 오류(`DioProtocolError`)를 분리하여 장애 원인 파악을 단순화
-- **로깅/관측성(추가 권장):**
-    - 송신/수신 프레임 덤프(옵션), 재시도 횟수, 통신상태 코드 등을 로그로 남겨 현장 디버깅 시간을 단축
-- **확장 계획:**
-    - 모델별 입출력 채널 수/offset을 config화하여 I32/O32/I16O16 지원
-    - 추가 FrameType(다른 기능)도 동일한 `_request` 공통 경로로 추가 가능
+  - Connection 레벨 오류(DioConnectionError)와 Protocol/Device 응답 오류(DioProtocolError)를 분리하여 장애 원인 파악을 단순화한다.
+
+- **프로토콜 안전장치:**
+  - 응답 Length 일치 여부 및 SyncNo 일치 여부를 검증하여 프레임 혼선/손상 시 즉시 예외 처리한다.
+
+- **관측성(현재 구현 범위):**
+  - 현재 구현에는 별도 로깅/프레임 덤프 기능은 포함하지 않았다. (필요 시 송수신 프레임 덤프/재시도 카운트 로깅 옵션을 추가 가능)
+
+- **확장 계획(현재 구현 + 향후):**
+  - I8O8의 출력 비트 오프셋은 DioConfig.output_bit_offset으로 파라미터화했다.
+  - 향후 모델별 채널 수/offset을 DioConfig에 확장하고, 기존 _request 공통 경로에 FrameType을 추가하는 방식으로 기능을 확장 가능하다.
