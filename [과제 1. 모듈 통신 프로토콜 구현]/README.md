@@ -42,7 +42,7 @@
   - main() 예제 시나리오(출력 순차 ON → 순차 OFF → 입력 조회)를 실행하여 동작을 확인한다. (실장비/네트워크 환경 필요)
 
 - **단위 테스트(pytest, 장비 없이 가능):**
-  - test_fastech_dio.py에서 _build_frame, _parse_response(Header/Length/FrameType/SyncNo 검증), 출력 bit-mask 매핑 로직을 pytest로 검증한다.
+  - `test_fastech_dio.py`에서 _build_frame, _parse_response(Header/Length/FrameType/SyncNo 검증), 출력 bit-mask 매핑 로직을 pytest로 검증한다.
 
 </br>
 
