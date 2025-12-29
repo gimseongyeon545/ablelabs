@@ -6,6 +6,8 @@
 - **구현 형태**: 클래스 기반, asyncio 비동기, 통신 에러 대응(재시도/재연결) 포함.
 - **타겟**: 기본은 Ezi-IO-EN-I8O8을 가정하며, 향후 I32/O32/I16O16로 확장 가능하도록 구성 요소를 분리한다.
 
+</br>
+
 ### 2) 설계(Architecture)
 
 - **단일 책임 분리**:
@@ -20,6 +22,8 @@
     - 모델별 차이(출력 비트 offset 등)는 `DioConfig`에서 파라미터화한다.
     - 추후 `num_inputs/num_outputs/input_offset/output_offset` 등을 추가해 I32/O32로 확장 가능하게 한다.
 
+</br>
+
 ### 3) 개발(Implementation)
 
 - **통신 프로토콜은 제조사 “통신 기능편”의 프레임 구조를 따른다.**
@@ -30,6 +34,8 @@
     - `get_output`: 출력 상태 마스크를 파싱하여 0\~7 채널 dict로 반환하고, 필요 시 출력 단계에서 8\~15로 매핑해 표시
     - `set_output`: set/reset 마스크를 생성하여 지정 채널만 ON/OFF 변경
 
+</br>
+
 ### 4) 테스트(Test)
 
 - **통합 테스트(Integration test):**
@@ -38,12 +44,16 @@
     - Mock TCP 서버를 사용해 매뉴얼 형식 응답을 주입하고, 프레임 생성/파싱 및 재시도 동작을 검증한다.
     - 단위 테스트: `_build_frame`, `_parse_response`, bit-mask 계산 로직을 pytest로 검증한다.
 
+</br>
+
 ### 5) 배포(Deploy)
 
 - **실행/배포 형태:**
     - 단일 Python 파일 또는 모듈(`fastech_dio.py`)로 패키징 가능
 - **설정 분리:**
     - IP/Port/Timeout/Retry 및 모델 파라미터는 `DioConfig`로 분리하여 운영 환경에서 손쉽게 변경 가능
+
+</br>
 
 ### 6) 유지보수(Maintain)
 
